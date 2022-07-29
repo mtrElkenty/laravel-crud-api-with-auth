@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductRequest;
+use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -15,24 +17,20 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return Product::all();
+        $products = Product::all();
+        return ProductResource::collection($products);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Resources\ProductResource  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
-        $request->validate([
-            "name" => ['required', 'max:100'],
-            "price" => ['required', 'integer']
-        ]);
-
         $new_product = Product::create($request->all());
-        return $new_product;
+        return new ProductResource($new_product);
     }
 
     /**
@@ -49,20 +47,20 @@ class ProductController extends Controller
     public function search($name)
     {
         $products = Product::where('name', 'like', "%$name%")->get();
-        return $products;
+        return ProductResource::collection($products);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Resources\ProductResource  $request
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
     {
         $product->update($request->all());
-        return $product;
+        return new ProductResource($product);
     }
 
     /**
